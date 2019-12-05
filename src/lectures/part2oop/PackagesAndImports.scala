@@ -2,6 +2,7 @@ package lectures.part2oop
 
 // import playground._ // import everything - use only when needed//
 import java.sql.{Date => SqlDate}
+import java.util.Date
 
 import playground.{PrinceCharming, Cinderella => Princess}
 /**
