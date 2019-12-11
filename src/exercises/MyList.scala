@@ -93,20 +93,14 @@ object ListTest extends App {
 //    }
 //  ))
 
-  println(listOfIntegers.map(
-        new Function1[Int,Int] {
-          override def apply(elem: Int): Int = elem * 2
-        }
-  ))
+//  println(listOfIntegers.map( elem => elem *2).toString) Works too
+  println(listOfIntegers.map( _ *2).toString) //Shorter
+  println(listOfIntegers.filter(_%2 == 0).toString)
 
   println((listOfIntegers ++ anotherListOfIntegers).toString)
 
-  println(listOfIntegers.flatMap(
-      new Function1[Int, MyList[Int]] {
-      override def apply(elem: Int): MyList[Int] =
-        new Cons(elem: Int, new Cons(elem + 1, Empty))
-    }
-  ))
+  println(listOfIntegers.flatMap(elem => new Cons(elem: Int, new Cons(elem + 1, Empty))))
+//  println(listOfIntegers.flatMap(new Cons(_ , new Cons(_ + 1, Empty)))) // DOES NOT WORK SINCE _ used 2 times 2nd '_' will refer to another args
 
   println(cloneListOfIntegers == listOfIntegers)
 

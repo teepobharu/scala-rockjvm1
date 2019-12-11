@@ -27,7 +27,7 @@ object PackagesAndImports extends App{
 
   // imports
   val date = new Date
-  val sqlDate = new SqlDate
+  val sqlDate = new SqlDate(1,2,3)
 
   // default imports
   // java.lang - String, Object, Exception
