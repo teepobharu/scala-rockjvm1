@@ -1,5 +1,7 @@
 package exercises
 
+import scala.annotation.tailrec
+
 abstract class MyList[+A] {
   def head: A
   def tail: MyList[A]
@@ -14,7 +16,15 @@ abstract class MyList[+A] {
   def filter(predicate: A => Boolean):MyList[A]
 
   def ++[B >: A](list: MyList[B]): MyList[B]
+
+  // hofs
+  def forEach(f: A => Unit): Unit
+  def sort(compare: (A,A) => Int): MyList[A]
+  def zipwith[B,C](list: MyList[B], zip: (A, B) => C): MyList[C]
+  def fold[B](start: B)(operator: (B,A) => B):B
+
 }
+
 //21. - Add case keyword
 case object Empty extends MyList[Nothing] {
   def head: Nothing = throw new NoSuchElementException
@@ -23,11 +33,20 @@ case object Empty extends MyList[Nothing] {
   def printElements:String = ""
   def isEmpty: Boolean = true
 
+    // higher-order-function
   def map[B](transformer: Nothing => B): MyList[B] = Empty
   def flatMap[B] (transformer: Nothing => MyList[B]): MyList[B] = Empty
   def filter(predicate: Nothing => Boolean):MyList[Nothing] = Empty
 
   def ++[B >: Nothing](list: MyList[B]): MyList[B] = list
+
+  // hofs
+  def forEach(f: Nothing => Unit): Unit = {}
+  def sort(compare: (Nothing, Nothing) => Int) = Empty
+  def zipwith[B,C](list: MyList[B], zip: (Nothing, B) => C): MyList[C] =
+    if(!list.isEmpty) throw new RuntimeException("Lists do not have same length !")
+    else Empty
+  def fold[B](start: B)(operator: (B, Nothing) => B):B = start
 }
 
 case class Cons[+A](h: A, t:MyList[A]) extends MyList[A] {
@@ -75,6 +94,39 @@ case class Cons[+A](h: A, t:MyList[A]) extends MyList[A] {
     = new Cons(2, new Cons(4, new Cons(6, Empty.map(n*2)))
     = new Cons(2, new Cons(4, new Cons(6, Empty))
  */
+
+  def forEach(f: A => Unit): Unit = {
+    f(h)
+    t.forEach(f)
+  }
+
+// HOFs Exercise
+  //  @tailrec
+  def sort(compare: (A,A) => Int): MyList[A] = {
+    // not tail recursive
+    def insert(x: A, sortedList: MyList[A]): MyList[A] =
+      if(sortedList.isEmpty) new Cons(x, Empty)
+      else if (compare(x,sortedList.head) <= 0) new Cons(x, sortedList)
+      else new Cons(sortedList.head, insert(x, sortedList.tail))
+
+    val sortedTail = t.sort(compare)
+    insert(h, sortedTail)
+  }
+  def zipwith[B,C](list: MyList[B], zip: (A, B) => C): MyList[C] = {
+    if(list.isEmpty) throw new RuntimeException("Lists do not have the same length!")
+    else new Cons(zip(h,list.head), t.zipwith(list.tail, zip))
+  }
+  def fold[B](start: B)(operator: (B,A) => B):B = {
+      t.fold(operator(start, h))(operator)
+    /*
+    [1,2,3].fold(0)(+)
+      = [2,3].fold(1)(+)
+      = [3].fold(3)(+)
+      = [].fold(6) //Empty case
+      = 6
+     */
+  }
+
 }
 
 object ListTest extends App {
@@ -82,7 +134,7 @@ object ListTest extends App {
 //  val listOfStrings: MyList[String] = Empty
   val listOfIntegers = new Cons(1, new Cons(2, new Cons(3, Empty)))
   val cloneListOfIntegers = new Cons(1, new Cons(2, new Cons(3, Empty)))
-  val listOfStrings = new Cons("Hello", new Cons("Scalla", Empty))
+  val listOfStrings = new Cons("Hello", new Cons("Scalla", new Cons("Ahaa", Empty)))
   val anotherListOfIntegers: MyList[Int] = new Cons(4, new Cons(5, Empty))
   println(listOfStrings.toString)
   println(listOfIntegers.toString)
@@ -103,6 +155,12 @@ object ListTest extends App {
 //  println(listOfIntegers.flatMap(new Cons(_ , new Cons(_ + 1, Empty)))) // DOES NOT WORK SINCE _ used 2 times 2nd '_' will refer to another args
 
   println(cloneListOfIntegers == listOfIntegers)
+
+  // HOFS
+  listOfIntegers.forEach(println)
+  println(listOfIntegers.sort((x,y) => y-x))
+  println(listOfIntegers.zipwith[String, String](listOfStrings, _ + "-" + _))
+  println(listOfIntegers.fold(6)(_+_))
 
 }
 
