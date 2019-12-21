@@ -162,6 +162,17 @@ object ListTest extends App {
   println(listOfIntegers.zipwith[String, String](listOfStrings, _ + "-" + _))
   println(listOfIntegers.fold(6)(_+_))
 
+  // for comprehensions compatible since we have map flatMap filter function in MyList
+  val combinations = for {
+    n <- listOfIntegers
+    string <- listOfStrings
+  } yield n + "-" + string
+  println(combinations)
+  println(for {
+    n <- listOfIntegers
+    string <- listOfStrings
+  } yield n + "-" + string)
+
 }
 
 // CLIP-36 DELETED
